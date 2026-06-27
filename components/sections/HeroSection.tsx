@@ -211,7 +211,7 @@ export default function HeroSection() {
             {isMobile ? (
               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Image
-                  src="/products/religion10.webp"
+                  src="/shiva-2.webp"
                   alt="Lord Shiva stone sculpture by Jigar Art, Dhrangadhra"
                   width={400}
                   height={520}
