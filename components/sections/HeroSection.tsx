@@ -2,39 +2,35 @@
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 
-// Load the 3D viewer only on client — no SSR, completely deferred
+// Only load Three.js on desktop — mobile gets a static image (saves ~500KB parse)
 const ShivaGLBViewer = dynamic(
   () => import('@/components/3d/ShivaGLBViewer'),
   { ssr: false }
 )
 
-// Cream blur placeholder — shown instantly while images load
-const BLUR_URL = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI0Y1RjBFOCIvPjwvc3ZnPg=="
+const BLUR = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI0Y1RjBFOCIvPjwvc3ZnPg=="
 
 export default function HeroSection() {
-  const [visible,   setVisible]   = useState(false)
-  const [isMobile,  setIsMobile]  = useState(false)
-  // Start with 3D viewer immediately — no pre-check fetch
-  // If GLB fails to load the viewer shows its own error state gracefully
-  const [show3D,    setShow3D]    = useState(false)
+  const [visible,  setVisible]  = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [show3D,   setShow3D]   = useState(false)
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile, { passive: true })
-
-    // Show text content immediately
+    const mobile = window.innerWidth < 768
+    setIsMobile(mobile)
     setVisible(true)
 
-    // Defer 3D init until after first paint — don't block LCP
-    const t3d = setTimeout(() => setShow3D(true), 400)
+    const onResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', onResize, { passive: true })
 
-    return () => {
-      clearTimeout(t3d)
-      window.removeEventListener('resize', checkMobile)
+    // Only initialise Three.js on desktop — never on mobile
+    if (!mobile) {
+      const t = setTimeout(() => setShow3D(true), 400)
+      return () => { clearTimeout(t); window.removeEventListener('resize', onResize) }
     }
+    return () => window.removeEventListener('resize', onResize)
   }, [])
 
   const canvasH = isMobile ? 320 : 600
@@ -209,24 +205,32 @@ export default function HeroSection() {
             pointerEvents: 'none', zIndex: 0,
           }} />
 
-          {/* Viewer or placeholder skeleton */}
+          {/* Mobile: static WebP image — no WebGL, no Three.js, instant */}
+          {/* Desktop: deferred 3D viewer after first paint */}
           <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-            {show3D ? (
+            {isMobile ? (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Image
+                  src="/products/religion10.webp"
+                  alt="Lord Shiva stone sculpture by Jigar Art, Dhrangadhra"
+                  width={400}
+                  height={520}
+                  priority
+                  placeholder="blur"
+                  blurDataURL={BLUR}
+                  style={{
+                    maxHeight: canvasH - 20,
+                    width: 'auto', height: 'auto',
+                    objectFit: 'contain',
+                    filter: 'drop-shadow(0 16px 40px rgba(100,80,20,0.20))',
+                  }}
+                />
+              </div>
+            ) : show3D ? (
               <ShivaGLBViewer height={canvasH} />
             ) : (
-              /* Cream skeleton shown for first 400ms — feels instant */
-              <div style={{
-                width: '100%', height: '100%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexDirection: 'column', gap: '1rem',
-              }}>
-                <span style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: 'clamp(4rem, 10vw, 7rem)',
-                  color: 'var(--color-gold)',
-                  opacity: 0.12,
-                  lineHeight: 1,
-                }}>ॐ</span>
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontFamily: 'var(--font-serif)', fontSize: '7rem', color: 'var(--color-gold)', opacity: 0.1, lineHeight: 1 }}>ॐ</span>
               </div>
             )}
           </div>

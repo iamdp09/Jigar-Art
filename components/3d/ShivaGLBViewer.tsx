@@ -52,15 +52,18 @@ export default function ShivaGLBViewer({
       if (renderer) return
 
       // Renderer
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      // Detect low-end GPU heuristic: DPR < 2 usually means mid/low tier
+      const isLowEnd = window.devicePixelRatio < 2
+
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !isLowEnd })
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isLowEnd ? 1 : 1.5))
       renderer.setSize(W, H)
       renderer.setClearColor(0x000000, 0)
-      renderer.shadowMap.enabled = true
+      renderer.shadowMap.enabled = !isLowEnd   // skip shadows on low-end
       renderer.shadowMap.type    = THREE.PCFShadowMap
       renderer.outputColorSpace  = THREE.SRGBColorSpace
       renderer.toneMapping       = THREE.ACESFilmicToneMapping
-      renderer.toneMappingExposure = 1.25
+      renderer.toneMappingExposure = 1.2
       container.appendChild(renderer.domElement)
 
       // Scene & Camera
@@ -69,13 +72,15 @@ export default function ShivaGLBViewer({
       camera.position.set(0, 0.4, 6.5)
 
       // ── Spiritual Lighting Rig ───────────────────────────
-      // 1. Warm golden key light — top-right (temple diya / sunrise)
-      const key = new THREE.DirectionalLight(0xFFF4C0, 3.8)
+      // 1. Warm golden key light
+      const key = new THREE.DirectionalLight(0xFFF4C0, 3.6)
       key.position.set(4, 7, 4)
-      key.castShadow = true
-      key.shadow.mapSize.set(1024, 1024)
-      key.shadow.camera.near = 0.1
-      key.shadow.camera.far  = 30
+      if (!isLowEnd) {
+        key.castShadow = true
+        key.shadow.mapSize.set(512, 512)   // 512 vs 1024 = 4× less shadow memory
+        key.shadow.camera.near = 0.1
+        key.shadow.camera.far  = 30
+      }
       scene.add(key)
 
       // 2. Cool fill from the left — sky diffuse
@@ -97,10 +102,10 @@ export default function ShivaGLBViewer({
       const ambient = new THREE.AmbientLight(0xFFF8E0, 0.45)
       scene.add(ambient)
 
-      // ── Gold Dust Particles ──────────────────────────────
-      const PTC = 350
-      const ptcPos  = new Float32Array(PTC * 3)
-      const ptcPhase = new Float32Array(PTC)  // for individual float phase
+      // ── Gold Dust Particles — fewer on low-end GPUs ─────────
+      const PTC = isLowEnd ? 80 : 220   // was 350
+      const ptcPos   = new Float32Array(PTC * 3)
+      const ptcPhase = new Float32Array(PTC)
       for (let i = 0; i < PTC; i++) {
         // Distribute in an ellipsoidal shell around model
         const r     = 1.8 + Math.random() * 2.8
@@ -160,11 +165,11 @@ export default function ShivaGLBViewer({
           // Enhance mesh quality
           model.traverse((child) => {
             if (child instanceof THREE.Mesh) {
-              child.castShadow    = true
-              child.receiveShadow = true
+              child.castShadow    = !isLowEnd
+              child.receiveShadow = !isLowEnd
               const mat = child.material as THREE.MeshStandardMaterial
               if (mat?.isMeshStandardMaterial) {
-                mat.envMapIntensity = 0.7
+                mat.envMapIntensity = isLowEnd ? 0.4 : 0.7
                 mat.needsUpdate     = true
               }
             }
