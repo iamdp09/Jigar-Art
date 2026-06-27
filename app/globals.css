@@ -415,3 +415,35 @@ a { text-decoration: none; color: inherit; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ─── Performance: GPU compositing for animated elements ─────── */
+/* Only promote elements that actually animate — avoids memory waste */
+[style*="animation"],
+[style*="transition"] {
+  backface-visibility: hidden;
+}
+
+/* Smooth scrolling — helps perceived perf on long pages */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Prevent layout shifts from images before they load */
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Buttons — remove tap delay on mobile */
+a, button {
+  touch-action: manipulation;
+}
+
+/* Prevent invisible scrollbars from causing layout shift */
+body {
+  overflow-x: hidden;
+}
+

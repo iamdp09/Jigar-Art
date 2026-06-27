@@ -2,136 +2,83 @@
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
-// Load the 3D viewer only on client — no SSR
+// Load the 3D viewer only on client — no SSR, completely deferred
 const ShivaGLBViewer = dynamic(
   () => import('@/components/3d/ShivaGLBViewer'),
   { ssr: false }
 )
 
-// Check if the GLB file exists at runtime (client-side)
-async function checkModelExists(): Promise<boolean> {
-  try {
-    const res = await fetch('/shiva-model.glb', { method: 'HEAD' })
-    return res.ok
-  } catch {
-    return false
-  }
-}
+// Cream blur placeholder — shown instantly while images load
+const BLUR_URL = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI0Y1RjBFOCIvPjwvc3ZnPg=="
 
 export default function HeroSection() {
-  const [visible,    setVisible]    = useState(false)
-  const [isMobile,   setIsMobile]   = useState(false)
-  const [hasModel,   setHasModel]   = useState<boolean | null>(null)  // null = checking
-  const [particles,  setParticles]  = useState<Array<{
-    id: number; left: string; top: string; size: number
-    delay: number; duration: number; opacity: number
-  }>>([])
+  const [visible,   setVisible]   = useState(false)
+  const [isMobile,  setIsMobile]  = useState(false)
+  // Start with 3D viewer immediately — no pre-check fetch
+  // If GLB fails to load the viewer shows its own error state gracefully
+  const [show3D,    setShow3D]    = useState(false)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
-    window.addEventListener('resize', checkMobile)
+    window.addEventListener('resize', checkMobile, { passive: true })
 
-    // Staggered entrance
-    const t = setTimeout(() => setVisible(true), 80)
+    // Show text content immediately
+    setVisible(true)
 
-    // Gold dust ambient particles
-    setParticles(Array.from({ length: 18 }, (_, i) => ({
-      id: i,
-      left:     `${5 + Math.random() * 90}%`,
-      top:      `${5 + Math.random() * 90}%`,
-      size:     1.5 + Math.random() * 2.5,
-      delay:    Math.random() * 6,
-      duration: 5 + Math.random() * 5,
-      opacity:  0.15 + Math.random() * 0.2,
-    })))
-
-    // Check if model file exists
-    checkModelExists().then(setHasModel)
+    // Defer 3D init until after first paint — don't block LCP
+    const t3d = setTimeout(() => setShow3D(true), 400)
 
     return () => {
-      clearTimeout(t)
+      clearTimeout(t3d)
       window.removeEventListener('resize', checkMobile)
     }
   }, [])
 
-  const canvasH = isMobile ? 340 : 620
+  const canvasH = isMobile ? 320 : 600
 
   return (
     <section
       id="hero"
       style={{
         minHeight: '100vh',
-        background: `
-          radial-gradient(ellipse 70% 60% at 72% 55%, rgba(201,168,76,0.10) 0%, transparent 65%),
-          radial-gradient(ellipse 50% 40% at 25% 30%, rgba(201,168,76,0.05) 0%, transparent 60%),
-          linear-gradient(180deg, #F5EFE0 0%, #F0E8D4 50%, #EDE4CC 100%)
-        `,
+        background: 'linear-gradient(180deg, #F5EFE0 0%, #F0E8D4 55%, #EDE4CC 100%)',
         display: 'flex',
         alignItems: 'center',
         position: 'relative',
         overflow: 'hidden',
         paddingTop: 72,
+        // Use will-change sparingly — only on the section itself
+        contain: 'layout style',
       }}
     >
-      {/* ── Sacred dot pattern ── */}
+      {/* ── Sacred dot pattern — pure CSS, no JS, GPU-composited ── */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
-        backgroundImage: `radial-gradient(circle, rgba(201,168,76,0.18) 1px, transparent 1px)`,
+        backgroundImage: `radial-gradient(circle, rgba(201,168,76,0.15) 1px, transparent 1px)`,
         backgroundSize: '36px 36px',
-        opacity: 0.35,
+        opacity: 0.3,
         maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%)',
         WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%)',
       }} />
 
-      {/* ── OM watermark behind right side ── */}
+      {/* ── OM watermark — pure CSS, no animation needed ── */}
       <div style={{
         position: 'absolute',
         right: isMobile ? '50%' : '8%',
         top: '50%',
         transform: isMobile ? 'translate(50%, -50%)' : 'translateY(-50%)',
-        fontSize: 'clamp(220px, 32vw, 420px)',
+        fontSize: 'clamp(200px, 30vw, 400px)',
         fontFamily: 'var(--font-serif)',
         color: 'var(--color-gold)',
-        opacity: 0.04,
+        opacity: 0.035,
         lineHeight: 1,
         pointerEvents: 'none',
         userSelect: 'none',
         zIndex: 0,
       }}>ॐ</div>
-
-      {/* ── Floating gold dust ── */}
-      {particles.map(p => (
-        <div key={p.id} style={{
-          position: 'absolute',
-          left: p.left, top: p.top,
-          width: p.size, height: p.size,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--color-gold-light), var(--color-gold))',
-          opacity: p.opacity,
-          animation: `float ${p.duration}s ease-in-out ${p.delay}s infinite`,
-          pointerEvents: 'none',
-          zIndex: 1,
-        }} />
-      ))}
-
-      {/* ── Incense smoke wisps ── */}
-      {!isMobile && [0, 1, 2].map(i => (
-        <div key={i} style={{
-          position: 'absolute',
-          bottom: 0,
-          left: `${58 + i * 4}%`,
-          width: 2,
-          height: 100,
-          background: 'linear-gradient(to top, rgba(201,168,76,0.3), transparent)',
-          borderRadius: 2,
-          animation: `incense-rise ${4 + i * 1.5}s ease-out ${i * 1.2}s infinite`,
-          pointerEvents: 'none',
-          zIndex: 1,
-        }} />
-      ))}
 
       {/* ── Main grid ── */}
       <div style={{
@@ -147,16 +94,16 @@ export default function HeroSection() {
         zIndex: 2,
       }}>
 
-        {/* ── LEFT: Text content ── */}
+        {/* ── LEFT: Text content — renders immediately, no delay ── */}
         <div style={{
           order: isMobile ? 2 : 1,
           opacity: visible ? 1 : 0,
-          transform: visible ? 'translateY(0)' : 'translateY(36px)',
-          transition: 'opacity 1s ease, transform 1s cubic-bezier(0.4,0,0.2,1)',
+          transform: visible ? 'translateY(0)' : 'translateY(28px)',
+          transition: 'opacity 0.7s ease, transform 0.7s cubic-bezier(0.4,0,0.2,1)',
           textAlign: isMobile ? 'center' : 'left',
+          willChange: 'opacity, transform',
         }}>
 
-          {/* Section label */}
           <div className="section-label" style={{
             marginBottom: '1.5rem',
             justifyContent: isMobile ? 'center' : 'flex-start',
@@ -164,23 +111,16 @@ export default function HeroSection() {
             Premium Stone Art
           </div>
 
-          {/* Main heading */}
-          <h1 style={{
-            marginBottom: '1.4rem',
-            lineHeight: 1.08,
-            fontWeight: 600,
-          }}>
+          <h1 style={{ marginBottom: '1.4rem', lineHeight: 1.08, fontWeight: 600 }}>
             Where Stone<br />
             <span className="text-gold-shimmer">Becomes</span>{' '}
             Sacred Art
           </h1>
 
-          {/* Decorative divider */}
           <div className="gold-divider" style={{
             margin: isMobile ? '1.2rem auto 1.8rem' : '1.2rem 0 1.8rem',
           }} />
 
-          {/* Description */}
           <p style={{
             fontSize: 'clamp(1rem, 1.4vw, 1.12rem)',
             maxWidth: 480,
@@ -193,7 +133,6 @@ export default function HeroSection() {
             divine details with unparalleled precision.
           </p>
 
-          {/* Gujarati tagline */}
           <p style={{
             fontFamily: 'var(--font-serif)',
             fontSize: 'clamp(1rem, 1.3vw, 1.15rem)',
@@ -206,7 +145,6 @@ export default function HeroSection() {
             &ldquo;જય ગુરૂદેવ&rdquo;
           </p>
 
-          {/* CTA buttons */}
           <div style={{
             display: 'flex', gap: '1rem', flexWrap: 'wrap',
             justifyContent: isMobile ? 'center' : 'flex-start',
@@ -232,79 +170,65 @@ export default function HeroSection() {
             justifyContent: isMobile ? 'center' : 'flex-start',
           }}>
             {[
-              { num: '2000+',  label: 'Sculptures' },
-              { num: '30+',   label: 'Years' },
-              { num: '1500+', label: 'Clients' },
+              { num: '500+',  label: 'Sculptures' },
+              { num: '17+',   label: 'Years' },
+              { num: '400+',  label: 'Clients' },
             ].map(s => (
               <div key={s.label} style={{ textAlign: isMobile ? 'center' : 'left' }}>
                 <div style={{
                   fontFamily: 'var(--font-display)',
                   fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-                  fontWeight: 600,
-                  color: 'var(--color-gold)',
-                  lineHeight: 1,
+                  fontWeight: 600, color: 'var(--color-gold)', lineHeight: 1,
                 }}>{s.num}</div>
                 <div style={{
-                  fontSize: '0.7rem',
-                  color: 'var(--color-text-muted)',
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  marginTop: 5,
-                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.7rem', color: 'var(--color-text-muted)',
+                  letterSpacing: '0.14em', textTransform: 'uppercase',
+                  marginTop: 5, fontFamily: 'var(--font-sans)',
                 }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* ── RIGHT: 3D Model or Fallback Image ── */}
+        {/* ── RIGHT: Viewer — deferred 400ms so text renders first ── */}
         <div style={{
           order: isMobile ? 1 : 2,
           position: 'relative',
           height: canvasH,
           width: '100%',
           opacity: visible ? 1 : 0,
-          transform: visible ? 'scale(1) translateY(0)' : 'scale(0.96) translateY(20px)',
-          transition: 'opacity 1.2s ease 0.2s, transform 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s',
+          transform: visible ? 'scale(1) translateY(0)' : 'scale(0.96) translateY(16px)',
+          transition: 'opacity 0.9s ease 0.15s, transform 0.9s cubic-bezier(0.4,0,0.2,1) 0.15s',
+          willChange: 'opacity, transform',
         }}>
 
-          {/* Radial gold glow behind model */}
+          {/* Subtle static glow — no animation, no blur, GPU-cheap */}
           <div style={{
-            position: 'absolute',
-            inset: '5% 10%',
-            background: 'radial-gradient(ellipse at center, rgba(201,168,76,0.22) 0%, rgba(201,168,76,0.08) 40%, transparent 70%)',
-            filter: 'blur(32px)',
-            pointerEvents: 'none',
-            zIndex: 0,
-            animation: 'glow-breathe 4s ease-in-out infinite',
+            position: 'absolute', inset: '10% 15%',
+            background: 'radial-gradient(ellipse at center, rgba(201,168,76,0.18) 0%, transparent 70%)',
+            pointerEvents: 'none', zIndex: 0,
           }} />
 
-          {/* Model or fallback image */}
+          {/* Viewer or placeholder skeleton */}
           <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-            {hasModel ? (
+            {show3D ? (
               <ShivaGLBViewer height={canvasH} />
-            ) : hasModel === false ? (
-              /* Fallback: display the PNG until GLB is placed */
+            ) : (
+              /* Cream skeleton shown for first 400ms — feels instant */
               <div style={{
                 width: '100%', height: '100%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexDirection: 'column', gap: '1rem',
               }}>
-                <Image
-                  src="/shiva.png"
-                  alt="Lord Shiva stone sculpture by Jigar Art"
-                  width={403}
-                  height={619}
-                  priority
-                  style={{
-                    maxHeight: canvasH - 40,
-                    width: 'auto', height: 'auto',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 20px 48px rgba(100,80,20,0.22))',
-                    animation: 'float-slow 9s ease-in-out infinite',
-                  }}
-                />
+                <span style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: 'clamp(4rem, 10vw, 7rem)',
+                  color: 'var(--color-gold)',
+                  opacity: 0.12,
+                  lineHeight: 1,
+                }}>ॐ</span>
               </div>
-            ) : null /* checking… */ }
+            )}
           </div>
         </div>
 
@@ -316,8 +240,8 @@ export default function HeroSection() {
         transform: 'translateX(-50%)',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', gap: '0.5rem',
-        opacity: visible ? 0.55 : 0,
-        transition: 'opacity 1s ease 1.2s',
+        opacity: visible ? 0.5 : 0,
+        transition: 'opacity 0.8s ease 0.8s',
         zIndex: 3,
       }}>
         <span style={{
