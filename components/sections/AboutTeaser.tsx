@@ -60,7 +60,7 @@ export default function AboutTeaser() {
                   quality={85}
                   placeholder="blur"
                   blurDataURL={BLUR}
-                  style={{ objectFit: 'contain', background: 'var(--color-cream)', padding: '1.5rem' }}
+                  style={{ objectFit: 'contain', backgroundColor: 'var(--color-cream)', padding: '1.5rem' }}
                 />
               </div>
               {/* Floating badge */}

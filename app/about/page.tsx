@@ -89,7 +89,7 @@ export default function AboutPage() {
                 alt="Jigar Art Workshop"
                 fill
                 sizes="(max-width:768px) 100vw, 50vw"
-                style={{ objectFit: 'contain', background: 'var(--color-cream)', padding: '2rem' }}
+                style={{ objectFit: 'contain', backgroundColor: 'var(--color-cream)', padding: '2rem' }}
               />
             </div>
           </div>

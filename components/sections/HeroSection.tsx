@@ -166,9 +166,9 @@ export default function HeroSection() {
             justifyContent: isMobile ? 'center' : 'flex-start',
           }}>
             {[
-              { num: '500+',  label: 'Sculptures' },
-              { num: '17+',   label: 'Years' },
-              { num: '400+',  label: 'Clients' },
+              { num: '2000+',  label: 'Sculptures' },
+              { num: '30+',   label: 'Years' },
+              { num: '1000+',  label: 'Clients' },
             ].map(s => (
               <div key={s.label} style={{ textAlign: isMobile ? 'center' : 'left' }}>
                 <div style={{
@@ -238,7 +238,8 @@ export default function HeroSection() {
 
       </div>
 
-      {/* ── Scroll indicator ── */}
+      {/* ── Scroll indicator — desktop only ── */}
+      {!isMobile && (
       <div style={{
         position: 'absolute', bottom: '1.5rem', left: '50%',
         transform: 'translateX(-50%)',
@@ -259,6 +260,7 @@ export default function HeroSection() {
           animation: 'float 2.2s ease-in-out infinite',
         }} />
       </div>
+      )}
     </section>
   )
 }

@@ -23,12 +23,12 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 const pillars = [
-  { icon: '🪨', title: 'Master Craftsmanship', titleGu: 'કારીગરી', description: 'Every sculpture is hand-carved by artisans trained through generations of traditional stone carving passed down in our family.' },
-  { icon: '💎', title: 'Premium Stone',        titleGu: 'ઉત્કૃષ્ટ પત્થર', description: 'We source only the finest quality marble, granite, and Dhrangadhra sandstone directly from acclaimed quarries across India.' },
-  { icon: '🔍', title: 'Precise Detail',       titleGu: 'ચોક્કસ વિગત', description: 'Our artisans achieve intricate detail work that brings divine figures to life — from fine jewellery to facial expressions.' },
-  { icon: '✏️', title: 'Custom Design',        titleGu: 'કસ્ટમ ડિઝાઇન', description: 'Have a vision? We craft custom sculptures to your exact specifications, size, and stone preference. No design is too complex.' },
-  { icon: '📦', title: 'Safe Delivery',        titleGu: 'સુરક્ષિત ડિલિવરી', description: 'Every sculpture is carefully packed and delivered with full care anywhere across India.' },
-  { icon: '🙏', title: 'Sacred Intent',        titleGu: 'પવિત્ર ઉદ્દેશ', description: 'We approach every carving as a sacred act — each piece is crafted with devotion, care, and reverence for the divine.' },
+  { icon: '#1', title: 'Master Craftsmanship', titleGu: 'કારીગરી', description: 'Every sculpture is hand-carved by artisans trained through generations of traditional stone carving passed down in our family.' },
+  { icon: '#2', title: 'Premium Stone',        titleGu: 'ઉત્કૃષ્ટ પત્થર', description: 'We source only the finest quality marble, granite, and Dhrangadhra sandstone directly from acclaimed quarries across India.' },
+  { icon: '#3', title: 'Precise Detail',       titleGu: 'ચોક્કસ વિગત', description: 'Our artisans achieve intricate detail work that brings divine figures to life — from fine jewellery to facial expressions.' },
+  { icon: '#4', title: 'Custom Design',        titleGu: 'કસ્ટમ ડિઝાઇન', description: 'Have a vision? We craft custom sculptures to your exact specifications, size, and stone preference. No design is too complex.' },
+  { icon: '#5', title: 'Safe Delivery',        titleGu: 'સુરક્ષિત ડિલિવરી', description: 'Every sculpture is carefully packed and delivered with full care anywhere across India.' },
+  { icon: '#6', title: 'Sacred Intent',        titleGu: 'પવિત્ર ઉદ્દેશ', description: 'We approach every carving as a sacred act — each piece is crafted with devotion, care, and reverence for the divine.' },
 ]
 
 export default function WhyUs() {
@@ -85,7 +85,7 @@ export default function WhyUs() {
                   el.style.transform = 'translateY(0)'
                 }}
               >
-                <div style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>{p.icon}</div>
+                <div style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#f4e6d1' }}>{p.icon}</div>
                 <h4 style={{ color: '#fff', marginBottom: '0.25rem' }}>{p.title}</h4>
                 <p style={{ fontSize: '0.75rem', color: 'var(--color-gold)', fontStyle: 'italic', marginBottom: '0.75rem', fontFamily: 'var(--font-serif)' }}>
                   {p.titleGu}
