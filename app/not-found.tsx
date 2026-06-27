@@ -31,7 +31,6 @@ export default function NotFound() {
       }}>ॐ</div>
 
       <h1 style={{
-        color: '#fff',
         fontFamily: 'var(--font-display)',
         fontSize: 'clamp(4rem, 12vw, 8rem)',
         fontWeight: 600,
