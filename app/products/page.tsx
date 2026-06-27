@@ -67,9 +67,13 @@ export default function ProductsPage() {
                 <div style={{ position: 'relative', height: 260, background: 'var(--color-cream)', overflow: 'hidden' }}>
                   <Image
                     src={product.image}
-                    alt={product.name}
+                    alt={`${product.name} — handcrafted ${product.material} sculpture by Jigar Art, Dhrangadhra`}
                     fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    quality={85}
+                    priority={product.id <= 3}
+                    placeholder="blur"
+                    blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI0Y1RjBFOCIvPjwvc3ZnPg=="
                     style={{ objectFit: 'contain', padding: '1rem', transition: 'transform 0.5s ease' }}
                     onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.06)')}
                     onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
