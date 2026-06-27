@@ -19,7 +19,21 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // GLB model — cache for 1 week (may update)
+        // Desktop GLB — immutable (filename changes if content changes)
+        source: '/shiva-model-desktop.glb',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        // Mobile GLB — immutable
+        source: '/shiva-model-mobile.glb',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        // Legacy GLB (keep for safety)
         source: '/shiva-model.glb',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },

@@ -25,15 +25,13 @@ export default function HeroSection() {
     const onResize = () => setIsMobile(window.innerWidth < 768)
     window.addEventListener('resize', onResize, { passive: true })
 
-    // Only initialise Three.js on desktop — never on mobile
-    if (!mobile) {
-      const t = setTimeout(() => setShow3D(true), 400)
-      return () => { clearTimeout(t); window.removeEventListener('resize', onResize) }
-    }
-    return () => window.removeEventListener('resize', onResize)
+    // Defer 3D init until after first text paint — same on all devices.
+    // The viewer itself loads the right GLB (mobile vs desktop) via getDeviceTier().
+    const t = setTimeout(() => setShow3D(true), 400)
+    return () => { clearTimeout(t); window.removeEventListener('resize', onResize) }
   }, [])
 
-  const canvasH = isMobile ? 320 : 600
+  const canvasH = isMobile ? 360 : 600
 
   return (
     <section
@@ -205,32 +203,14 @@ export default function HeroSection() {
             pointerEvents: 'none', zIndex: 0,
           }} />
 
-          {/* Mobile: static WebP image — no WebGL, no Three.js, instant */}
-          {/* Desktop: deferred 3D viewer after first paint */}
+          {/* 3D viewer on ALL devices — viewer self-adapts GLB quality via getDeviceTier() */}
           <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-            {isMobile ? (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Image
-                  src="/shiva-2.webp"
-                  alt="Lord Shiva stone sculpture by Jigar Art, Dhrangadhra"
-                  width={400}
-                  height={520}
-                  priority
-                  placeholder="blur"
-                  blurDataURL={BLUR}
-                  style={{
-                    maxHeight: canvasH - 20,
-                    width: 'auto', height: 'auto',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 16px 40px rgba(100,80,20,0.20))',
-                  }}
-                />
-              </div>
-            ) : show3D ? (
+            {show3D ? (
               <ShivaGLBViewer height={canvasH} />
             ) : (
+              /* OM placeholder for 400ms until Three.js initialises */
               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontFamily: 'var(--font-serif)', fontSize: '7rem', color: 'var(--color-gold)', opacity: 0.1, lineHeight: 1 }}>ॐ</span>
+                <span style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(5rem, 18vw, 9rem)', color: 'var(--color-gold)', opacity: 0.1, lineHeight: 1 }}>ॐ</span>
               </div>
             )}
           </div>
