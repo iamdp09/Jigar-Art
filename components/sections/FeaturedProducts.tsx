@@ -53,9 +53,8 @@ export default function FeaturedProducts() {
     <section style={{
       background: 'var(--color-white)',
       padding: 'clamp(4rem, 8vw, 7rem) 0',
-      contentVisibility: 'auto',
-      containIntrinsicSize: '0 600px',
-    } as React.CSSProperties}>
+      transform: 'translateZ(0)',   // GPU layer — no layout shifts
+    }}>
       <div className="section">
         <ScrollReveal>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>

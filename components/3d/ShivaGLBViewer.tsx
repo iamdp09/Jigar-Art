@@ -45,6 +45,7 @@ export default function ShivaGLBViewer({ height = 580 }: Props) {
     let rafId        = 0
     let renderer: THREE.WebGLRenderer | null = null
     let model: THREE.Group | null = null
+    let isVisible    = true   // pauses RAF when hero scrolls off-screen
 
     let autoAngle  = 0
     let manualDY   = 0
@@ -198,12 +199,16 @@ export default function ShivaGLBViewer({ height = 580 }: Props) {
         }
       )
 
-      // ── Render Loop ──────────────────────────────────────
+      // ── Render Loop — pauses when off-screen ─────────────
       let lastTs = performance.now()
       const tick = (ts: number) => {
         rafId = requestAnimationFrame(tick)
 
-        // Frame-skip for mid/low tier mobile (~30–45fps instead of 60)
+        // Skip rendering entirely when hero is not visible — frees
+        // main thread for smooth scroll through below-fold sections
+        if (!isVisible) return
+
+        // Frame-skip for mid/low tier mobile
         frameCounter++
         if (frameSkip > 0 && frameCounter % (frameSkip + 1) !== 0) return
 
@@ -279,8 +284,17 @@ export default function ShivaGLBViewer({ height = 580 }: Props) {
     })
     ro.observe(container)
 
+    // Pause render loop when viewer scrolls off-screen — biggest scroll
+    // smoothness win: stops GPU work during scroll through other sections
+    const visObs = new IntersectionObserver(
+      ([entry]) => { isVisible = entry.isIntersecting },
+      { threshold: 0, rootMargin: '200px 0px 200px 0px' }  // 200px buffer
+    )
+    visObs.observe(container)
+
     return () => {
       ro.disconnect()
+      visObs.disconnect()
       cancelAnimationFrame(rafId)
       if (typeof (container as any).__cleanupListeners === 'function') {
         ;(container as any).__cleanupListeners()

@@ -36,9 +36,8 @@ export default function WhyUs() {
     <section style={{
       background: 'linear-gradient(180deg, var(--color-navy) 0%, #0F2340 100%)',
       padding: 'clamp(4rem, 8vw, 7rem) 0',
-      contentVisibility: 'auto',
-      containIntrinsicSize: '0 600px',
-    } as React.CSSProperties}>
+      transform: 'translateZ(0)',
+    }}>
       <div className="section">
         <FadeIn>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
