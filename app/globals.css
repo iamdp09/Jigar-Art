@@ -423,13 +423,6 @@ a { text-decoration: none; color: inherit; }
   backface-visibility: hidden;
 }
 
-/* Smooth scrolling — helps perceived perf on long pages */
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
 
 /* Prevent layout shifts from images before they load */
 img {
@@ -445,5 +438,22 @@ a, button {
 /* Prevent invisible scrollbars from causing layout shift */
 body {
   overflow-x: hidden;
+  /* Prevent the rubber-band bounce that causes "jumps to top" feeling */
+  overscroll-behavior-y: none;
+}
+
+/* Promote scroll container to compositor thread */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Compositor hint for smooth scrolling */
+  will-change: scroll-position;
+}
+
+/* Section GPU layers — prevents repaint during scroll */
+section {
+  isolation: isolate;
 }
 

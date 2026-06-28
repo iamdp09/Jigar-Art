@@ -31,9 +31,8 @@ export default function AboutTeaser() {
     <section style={{
       background: 'var(--color-cream)',
       padding: 'clamp(4rem, 8vw, 7rem) 0',
-      contentVisibility: 'auto',
-      containIntrinsicSize: '0 560px',
-    } as React.CSSProperties}>
+      transform: 'translateZ(0)',
+    }}>
       <div className="section">
         <div style={{
           display: 'grid',
