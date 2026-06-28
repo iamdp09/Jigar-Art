@@ -30,7 +30,7 @@ export default function ProductsPage() {
       </section>
 
       {/* Category Filter */}
-      <section style={{ background: 'var(--color-white)', padding: '2rem clamp(1.25rem, 5vw, 5rem)', borderBottom: '1px solid var(--color-border)', marginBottom: '-100px' }}>
+      <section style={{ background: 'var(--color-white)', padding: '2rem clamp(1.25rem, 5vw, 5rem)', borderBottom: '1px solid var(--color-border)', marginBottom: '-20px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {CATEGORIES.map(cat => (
             <button
@@ -55,7 +55,7 @@ export default function ProductsPage() {
       </section>
 
       {/* Products Grid */}
-      <section style={{ background: 'var(--color-cream)', padding: 'clamp(3rem, 6vw, 5rem) 0' }}>
+      <section style={{ background: 'var(--color-cream)', padding: '1rem 0 clamp(3rem, 6vw, 5rem) 0' }}>
         <div className="section">
           <p style={{ marginBottom: '2rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
             Showing {filtered.length} sculpture{filtered.length !== 1 ? 's' : ''}
