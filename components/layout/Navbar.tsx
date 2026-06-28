@@ -42,7 +42,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
       <Image
-  src="/logo.png" // or "/logo.svg"
+  src="/logo2.png" // or "/logo.svg"
   alt="Jigar Art Logo"
   width={30}
   height={30}
