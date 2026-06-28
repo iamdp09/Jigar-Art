@@ -71,7 +71,7 @@ export default function AboutTeaser() {
                 boxShadow: 'var(--shadow-gold)',
                 textAlign: 'center',
               }}>
-                <div style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 600, lineHeight: 1 }}>17+</div>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 600, lineHeight: 1 }}>30+</div>
                 <div style={{ fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>Years of Mastery</div>
               </div>
             </div>
@@ -86,7 +86,7 @@ export default function AboutTeaser() {
             <div className="gold-divider" />
             <p style={{ marginBottom: '1.25rem' }}>
               Jigar Art was born from a deep passion for preserving the ancient art of stone carving.
-              For over 17 years, our experienced artisans have transformed raw Dhrangadhra sandstone
+              For over 30 years, our experienced artisans have transformed raw Dhrangadhra sandstone
               into divine expressions of faith, beauty, and heritage.
             </p>
             <p style={{ marginBottom: '2rem' }}>
