@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'
-import { getDeviceTier, isMobileDevice } from '@/lib/isMobile'
+import { getDeviceTier, isMobileDevice, getDPRCap, getGLBPath } from '@/lib/isMobile'
 
 /* ─────────────────────────────────────────────────────────────
    ShivaGLBViewer — Mobile-first, tier-adaptive 3D viewer
@@ -37,10 +37,9 @@ export default function ShivaGLBViewer({ height = 580 }: Props) {
     // Hint text
     setHint(isMob ? 'Touch to explore' : 'Drag to explore')
 
-    // Select correct GLB based on tier
-    const modelPath = tier === 'high'
-      ? '/shiva-model-desktop.glb'
-      : '/shiva-model-mobile.glb'
+    // GLB path and DPR — from shared utility (matches spec exactly)
+    const modelPath = getGLBPath()    // low→low.glb, mid→mobile.glb, high→desktop.glb
+    const dprCap    = getDPRCap()     // low→0.8, mid→1.2, high→min(dpr,2.0)
 
     // ── Mutable state (kept outside React) ──────────────────
     let rafId        = 0
@@ -65,12 +64,10 @@ export default function ShivaGLBViewer({ height = 580 }: Props) {
     const init = (W: number, H: number) => {
       if (renderer) return
 
-      // Tier-adaptive DPR: low=1.0, mid=1.5, high=native≤2
-      const dprCap = isLow ? 1.0 : isMid ? 1.5 : Math.min(window.devicePixelRatio, 2)
-
+      // Tier-adaptive DPR from shared utility: low=0.8, mid=1.2, high≤2.0
       renderer = new THREE.WebGLRenderer({
         alpha:           true,
-        antialias:       !isMob,         // antialias only on desktop
+        antialias:       !isMob,
         powerPreference: 'high-performance',
       })
       renderer.setPixelRatio(dprCap)

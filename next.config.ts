@@ -19,7 +19,14 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Desktop GLB — immutable (filename changes if content changes)
+        // Low (budget phone) GLB — immutable
+        source: '/shiva-model-low.glb',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        // Desktop GLB — immutable
         source: '/shiva-model-desktop.glb',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
